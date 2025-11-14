@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # PHP Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog_app
+    restart: always
+    volumes:
+      - ./src:/var/www/html/
+    ports:
+      - "8080:80"
+    environment:
+      # Required for Database.php to connect
+      MYSQL_HOST: db
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - db
+
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: blog_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      # 1. Mount the schema for initial setup (runs only on first start)
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      
+      # 2. *** CRITICAL FIX: PERSISTENT DATA VOLUME ***
+      # This mounts the internal MySQL data directory to the named volume defined below.
+      - mysql_data:/var/lib/mysql 
+    ports:
+      - "3306:3306"
+
+# Define the Named Volume here
+volumes:
+  mysql_data:
+    # Use default driver for local persistence

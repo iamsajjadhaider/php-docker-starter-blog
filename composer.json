@@ -1,0 +1,13 @@
+{
+    "name": "yourname/blog-project",
+    "description": "A basic blogging platform using PHP and MySQL.",
+    "require": {
+        "php": ">=8.0"
+        // You might add a library for dotenv, routing, or templating here later
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
